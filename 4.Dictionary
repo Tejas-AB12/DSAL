@@ -1,0 +1,211 @@
+#include <iostream>
+#include<string>
+using namespace std;
+
+struct Node {
+    int key;
+    string meaning;
+    Node* left;
+    Node* right;
+    
+    Node(int val,string mean) {
+        key = val;
+        meaning = mean;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+class Dictonary
+{
+    public:
+    Node* root;
+    Dictonary()
+    {
+        root=nullptr;
+    }
+
+Node* insertNode(Node* root, int data,string mean) {
+    if (root == nullptr) {
+        return new Node(data,mean);
+    }
+
+    if (data < root->key) {
+        root->left = insertNode(root->left, data,mean);
+    } else {
+        root->right = insertNode(root->right, data,mean);
+    }
+    return root;
+}
+void update(Node* root, int data, string msg) {
+        if (!root) {
+            cout << "Key not found..\n";
+            return;
+        }
+        if (data < root->key)
+            update(root->left, data, msg);
+        else if (data > root->key)
+            update(root->right, data, msg);
+        else
+            root->meaning = msg;
+    }
+Node* DeleteNode(Node* root,int data)
+{
+	if(root==nullptr)
+	{
+		return nullptr;
+	}
+	else if(data<root->key)
+	{
+		root->left=DeleteNode(root->left,data);
+	}
+	else if(data>root->key)
+	{
+		root->right=DeleteNode(root->right,data);
+	}
+	else if(data==root->key)
+	{
+		if(root->left==nullptr)
+		{
+			Node* temp = root->right;
+			delete root;
+			return temp;
+		}
+		else if(root->right==nullptr)
+		{
+			Node* temp = root->left;
+			delete root;
+			return temp;
+		}
+		Node* current = root;
+        while (current->left != nullptr) {
+        current = current->left;
+    }
+		Node* temp=current;
+		root->key=temp->key;
+		root->meaning=temp->meaning;
+		delete current;
+		 
+		
+	}
+	
+	return root;
+}
+
+	
+
+
+
+void displayTreeAscending(Node* root) {
+    if (root == nullptr) {
+        return;
+    }
+    displayTreeAscending(root->left);
+    cout << root->key<< " -> "<<root->meaning<<"   ";
+    displayTreeAscending(root->right);
+}
+void displayTreeDescending(Node* root) {
+    if (root == nullptr) {
+        return;
+    }
+    displayTreeDescending(root->right);
+    cout << root->key<< " -> "<<root->meaning<<"   ";
+    displayTreeDescending(root->left);
+}
+
+
+Node* searchValue(Node* root, int value,int &count) {
+    
+    
+    while(root!=nullptr)
+    {
+        count++;
+        if (root->key == value)
+        {
+            return root;
+        } 
+        if (value < root->key)
+        {
+            return searchValue(root->left, value,count);
+        }
+        else
+        {
+            return searchValue(root->right, value,count);
+        }
+    }
+    return nullptr;
+}
+};
+int main() {
+    Dictonary d;
+    Node* root = nullptr;
+    int choice;
+    do{
+        cout<<"\n1.Add new node\n2.Search Node\n3.Delete Node: \n4.Display Node in ascending\n5.Display Node in descending\n6.Update the value of the node\n7.exit\nSelect your choice : ";
+        cin>>choice;
+        if(choice==1){
+            int n;
+            string val;
+            cout<<"Enter key(integer) and value(string) : ";
+            cin>>n>>val;
+            root=d.insertNode(root,n,val);
+            cout<<"Node inserted successfully..\n";
+        }else if(choice==2){
+            int s;
+            int cnt=0;
+            cout<<"Enter search value : ";
+            cin>>s;
+            Node* result=d.searchValue(root,s,cnt);
+            if (result) {
+                cout << "Value " << s << " found in the tree.  No. of Comparisons = " <<cnt<< endl;
+            }else {
+                cout << "Value " << s << " not found in the tree.\n" << endl;
+            }
+        }else if (choice == 3) {
+            int k;
+            cout<<"Enter Key for deletion : ";
+            cin>>k;
+            Node* result=d.DeleteNode(root,k);
+            
+        }
+        else if(choice==4)
+        {
+        	 if (root == nullptr) {
+                cout << "Tree is empty.\n" << endl;
+            } else {
+                cout << "Tree elements (ascending-order traversal): ";
+                d.displayTreeAscending(root);
+                cout << endl;
+            }
+        }
+        else if(choice==5)
+        {
+        	 if (root == nullptr) {
+                cout << "Tree is empty.\n" << endl;
+            } else {
+                cout << "Tree elements (descending-order traversal): ";
+                d.displayTreeDescending(root);
+                cout << endl;
+            }
+        }
+        else if(choice==6)
+        {
+            int n;
+            string val;
+            cout<<"Enter key(integer) which you want to update : ";
+            cin>>n;
+            cout<<"Enter Updated value(string) of the key : ";
+            cin>>val;
+            d.update(root,n,val);
+            cout<<"Node Updated successfully..\n";
+        }
+        else if(choice==7)
+        {
+        	cout<<"Exiting...";
+        	return 0;
+        }
+        else{
+            cout<<"\nInvalid choice..\n";
+        }
+    }while(1);
+    return 0;
+}
