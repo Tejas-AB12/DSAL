@@ -1,0 +1,97 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+struct Student {
+    int rollNo;
+    string name;
+    string division;
+    string address;
+};
+
+void addStudent(const string &filename) {
+    ofstream outFile(filename, ios::app);
+    Student s;
+    cout << "Enter Roll No, Name, Division, Address: ";
+    cin >> s.rollNo >> s.name >> s.division;
+    cin.ignore();
+    getline(cin, s.address);
+
+    outFile << s.rollNo << " " << s.name << " " << s.division << " " << s.address << endl;
+    outFile.close();
+}
+
+void displayAllStudents(const string &filename) {
+    ifstream inFile(filename);
+    Student s;
+    if (!inFile) {
+        cout << "Error opening file.\n";
+        return;
+    }
+
+    cout << "\n--- Student Records ---\n";
+    bool found = false;
+    while (inFile >> s.rollNo >> s.name >> s.division) {
+        inFile.ignore();
+        getline(inFile, s.address);
+        cout << "\nRoll No: " << s.rollNo;
+        cout << "\nName: " << s.name;
+        cout << "\nDivision: " << s.division;
+        cout << "\nAddress: " << s.address << "\n";
+        found = true;
+    }
+    inFile.close();
+
+    if (!found)
+        cout << "No student records found.\n";
+}
+
+
+void deleteStudent(const string &filename, int roll) {
+    ifstream inFile(filename);
+    ofstream outFile("temp.txt");
+    Student s;
+    bool found = false;
+    while (inFile >> s.rollNo >> s.name >> s.division) {
+        inFile.ignore();
+        getline(inFile, s.address);
+        if (s.rollNo == roll) {
+            found = true; // skip writing this record
+            continue;
+        }
+        outFile << s.rollNo << " " << s.name << " " << s.division << " " << s.address << endl;
+    }
+    inFile.close();
+    outFile.close();
+    remove(filename.c_str());
+    rename("temp.txt", filename.c_str());
+    
+    if (found)
+        cout << "Record deleted successfully.\n";
+    else
+        cout << "Record not found.\n";
+}
+
+int main() {
+    string filename = "students.txt";
+    int choice;
+    do {
+        cout << "\n1. Add Student\n2. Display All Students\n3. Delete Student\n4. Exit\nEnter choice: ";
+        cin >> choice;
+        if (choice == 1) {
+            addStudent(filename);
+        } else if (choice == 2) {
+            displayAllStudents(filename);
+        } else if (choice == 3) {
+            int roll;
+            cout << "Enter Roll No to delete: ";
+            cin >> roll;
+            deleteStudent(filename, roll);
+        } else if (choice != 4) {
+            cout << "Invalid choice. Try again.\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}
