@@ -1,0 +1,69 @@
+def liner_probing():
+    index =key%size
+    if l[index]==-1:
+        l[index]=key
+        return l
+    else:
+        for j in range (size):
+            p=(index+j)%size
+            if l[p]==-1:
+                l[p]=key
+                return l
+            print("Table is full ")
+            return l
+def quad_probing():
+    index=key%size
+    if l[index]==-1:
+        l[index]=key
+        return l
+    else:
+        for j in range(1,size):
+            p=(index+j*j)%size
+            if l[p]==-1:
+                l[p]=key
+                return l
+            print("Table is Full ")
+            return l
+def search():
+    count=1
+    for i in range(size):
+        index=(key+i)%size
+        if l[index]==key:
+            print("Element is found at index",index)
+            print("Record is:",l[index])
+            print("No. of Comparison ",count)
+            break
+        elif l[index]==-1:
+            print("Element not  Found")
+            break
+        else:
+            count+=1
+    else:
+        print("Element not Found")
+        
+l=[]
+size=int(input("Enter table Size: "))
+for i in range(size):
+    l.append(-1)
+    
+print(l)
+
+while True:
+    ch=int(input("Enter choice: \n 1.Linear Probing \n 2. Quadratic Probing \n 3.Search \n 4.Exit \n"))
+    if ch==1:
+        print("Using Linear Probing to Store Numbers ")
+        for i in range(size):
+            key=int(input("Enter Number : "))
+            print(liner_probing())
+    elif ch==2:
+        for i in range(size):
+            key=int(input("Enter a number: "))
+            print(quad_probing())
+    elif ch==3:
+        key=int(input("Enteer Number you want to search: "))
+        search()
+    elif ch==4:
+        print("Exiting Program.")
+        break
+    else:
+        print("Invaid Choice")
