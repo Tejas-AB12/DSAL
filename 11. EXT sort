@@ -1,0 +1,113 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static final int MEMORY_SIZE = 5;
+
+    public static void main(String[] args) throws IOException {
+        String inputFile = "input.txt";
+        String run1 = "run1.txt";
+        String run2 = "run2.txt";
+        String outputFile = "sorted_output.txt";
+
+        generateInputFile(inputFile);
+        createSortedRuns(inputFile, run1, run2);
+        mergeSortedRuns(run1, run2, outputFile);
+
+        System.out.println("Sorted output:");
+        BufferedReader reader = new BufferedReader(new FileReader(outputFile));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            System.out.print(line + " ");
+        }
+        reader.close();
+    }
+
+    // Generate a sample unsorted input file
+    static void generateInputFile(String fileName) throws IOException {
+        int[] data = {42, 17, 8, 23, 4, 56, 19, 5, 30, 2};
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+        for (int value : data) {
+            writer.write(Integer.toString(value));
+            writer.newLine();
+        }
+        writer.close();
+    }
+
+    // Divide input into sorted chunks
+    static void createSortedRuns(String inputFile, String run1, String run2) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+        BufferedWriter writerA = new BufferedWriter(new FileWriter(run1));
+        BufferedWriter writerB = new BufferedWriter(new FileWriter(run2));
+
+        List<Integer> buffer = new ArrayList<>();
+        String line;
+        boolean writeToA = true;
+
+        while ((line = reader.readLine()) != null) {
+            buffer.add(Integer.parseInt(line));
+            if (buffer.size() == MEMORY_SIZE) {
+                Collections.sort(buffer);
+                writeBuffer(writeToA ? writerA : writerB, buffer);
+                buffer.clear();
+                writeToA = !writeToA;
+            }
+        }
+
+        if (!buffer.isEmpty()) {
+            Collections.sort(buffer);
+            writeBuffer(writeToA ? writerA : writerB, buffer);
+        }
+
+        reader.close();
+        writerA.close();
+        writerB.close();
+    }
+
+    static void writeBuffer(BufferedWriter writer, List<Integer> buffer) throws IOException {
+        for (int num : buffer) {
+            writer.write(Integer.toString(num));
+            writer.newLine();
+        }
+    }
+
+    // Merge two sorted files
+    static void mergeSortedRuns(String run1, String run2, String outputFile) throws IOException {
+        BufferedReader r1 = new BufferedReader(new FileReader(run1));
+        BufferedReader r2 = new BufferedReader(new FileReader(run2));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+
+        String s1 = r1.readLine();
+        String s2 = r2.readLine();
+
+        while (s1 != null && s2 != null) {
+            int n1 = Integer.parseInt(s1);
+            int n2 = Integer.parseInt(s2);
+            if (n1 <= n2) {
+                writer.write(Integer.toString(n1));
+                writer.newLine();
+                s1 = r1.readLine();
+            } else {
+                writer.write(Integer.toString(n2));
+                writer.newLine();
+                s2 = r2.readLine();
+            }
+        }
+
+        while (s1 != null) {
+            writer.write(s1);
+            writer.newLine();
+            s1 = r1.readLine();
+        }
+
+        while (s2 != null) {
+            writer.write(s2);
+            writer.newLine();
+            s2 = r2.readLine();
+        }
+
+        r1.close();
+        r2.close();
+        writer.close();
+    }
+}
