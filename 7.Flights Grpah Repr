@@ -1,0 +1,78 @@
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <string>
+#include <queue>
+#include <set>
+
+using namespace std;
+
+class Graph {
+private:
+    unordered_map<string, vector<pair<string, int>>> adjacencyList;
+
+public:
+    void addEdge(const string& city1, const string& city2, int weight) {
+        adjacencyList[city1].emplace_back(city2, weight);
+        adjacencyList[city2].emplace_back(city1, weight);
+    }
+
+    bool isConnected() {
+        if (adjacencyList.empty()) return true;
+
+        set<string> visited;
+        queue<string> toVisit;
+        string startNode = adjacencyList.begin()->first;
+        toVisit.push(startNode);
+
+        while (!toVisit.empty()) {
+            string current = toVisit.front();
+            toVisit.pop();
+            if (visited.find(current) == visited.end()) {
+                visited.insert(current);
+                for (const auto& neighbor : adjacencyList[current]) {
+                    toVisit.push(neighbor.first);
+                }
+            }
+        }
+
+        return visited.size() == adjacencyList.size();
+    }
+
+    void displayGraph() {
+        for (const auto& cityAndNeighbors : adjacencyList) {
+            const string& city = cityAndNeighbors.first;
+            const vector<pair<string, int>>& neighbors = cityAndNeighbors.second;
+
+            cout << city << ": ";
+            for (const auto& neighborAndWeight : neighbors) {
+                const string& neighbor = neighborAndWeight.first;
+                int weight = neighborAndWeight.second;
+
+                cout << "(" << neighbor << ", " << weight << ") ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+int main() {
+    Graph flightGraph;
+
+    flightGraph.addEdge("CityA", "CityB", 120);
+    flightGraph.addEdge("CityA", "CityC", 150);
+    flightGraph.addEdge("CityB", "CityD", 90);
+    flightGraph.addEdge("CityD", "CityE", 80);
+    flightGraph.addEdge("CityE", "CityC", 100);
+
+    cout << "Adjacency List Representation of the Graph:" << endl;
+    flightGraph.displayGraph();
+
+    if (flightGraph.isConnected()) {
+        cout << "The graph is connected." << endl;
+    } else {
+        cout << "The graph is not connected." << endl;
+    }
+
+    return 0;
+}
