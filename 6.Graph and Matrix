@@ -1,0 +1,130 @@
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <queue>
+#include <unordered_map>
+#include <list>
+#include <string>
+
+using namespace std;
+
+class Graph {
+private:
+    unordered_map<string, int> nodeIndex;
+    vector<vector<int>> adjMatrix;
+    unordered_map<string, list<string>> adjList;
+    int numNodes;
+
+public:
+    Graph(const vector<string>& nodes) {
+        numNodes = nodes.size();
+        adjMatrix.resize(numNodes, vector<int>(numNodes, 0));
+        for (int i = 0; i < numNodes; ++i) {
+            nodeIndex[nodes[i]] = i;
+        }
+    }
+
+    void addEdge(const string& src, const string& dest) {
+        int srcIndex = nodeIndex[src];
+        int destIndex = nodeIndex[dest];
+        adjMatrix[srcIndex][destIndex] = 1;
+        adjMatrix[destIndex][srcIndex] = 1; // Assuming undirected graph
+
+        adjList[src].push_back(dest);
+        adjList[dest].push_back(src); // Assuming undirected graph
+    }
+
+    void DFS(const string& startNode) {
+        vector<bool> visited(numNodes, false);
+        stack<int> stack;
+        int startIndex = nodeIndex[startNode];
+        stack.push(startIndex);
+
+        while (!stack.empty()) {
+            int node = stack.top();
+            stack.pop();
+
+            if (!visited[node]) {
+                cout << getNodeName(node) << " ";
+                visited[node] = true;
+            }
+
+            for (int neighbor = 0; neighbor < numNodes; ++neighbor) {
+                if (adjMatrix[node][neighbor] == 1 && !visited[neighbor]) {
+                    stack.push(neighbor);
+                }
+            }
+        }
+    }
+
+    void BFS(const string& startNode) {
+        unordered_map<string, bool> visited;
+        queue<string> queue;
+
+        queue.push(startNode);
+        visited[startNode] = true;
+
+        while (!queue.empty()) {
+            string node = queue.front();
+            queue.pop();
+            cout << node << " ";
+
+            for (const auto& neighbor : adjList[node]) {
+                if (!visited[neighbor]) {
+                    visited[neighbor] = true;
+                    queue.push(neighbor);
+                }
+            }
+        }
+    }
+
+    string getNodeName(int index) const {
+        for (const auto& pair : nodeIndex) {
+            if (pair.second == index) {
+                return pair.first;
+            }
+        }
+        return "";
+    }
+};
+
+int main() {
+    int numNodes;
+    cout << "Enter the number of nodes: ";
+    cin >> numNodes;
+
+    vector<string> nodes(numNodes);
+    cout << "Enter the names of the nodes:" << endl;
+    for (int i = 0; i < numNodes; ++i) {
+        cin >> nodes[i];
+    }
+
+    Graph graph(nodes);
+
+    int numEdges;
+    cout << "Enter the number of edges: ";
+    cin >> numEdges;
+
+    cout << "Enter the edges (src dest):" << endl;
+    for (int i = 0; i < numEdges; ++i) {
+        string src, dest;
+        cin >> src >> dest;
+        graph.addEdge(src, dest);
+    }
+
+    string startNodeDFS, startNodeBFS;
+    cout << "Enter the starting node for DFS: ";
+    cin >> startNodeDFS;
+    cout << "Enter the starting node for BFS: ";
+    cin >> startNodeBFS;
+
+    cout << "DFS starting from " << startNodeDFS << ": ";
+    graph.DFS(startNodeDFS);
+    cout << endl;
+
+    cout << "BFS starting from " << startNodeBFS << ": ";
+    graph.BFS(startNodeBFS);
+    cout << endl;
+
+    return 0;
+}
